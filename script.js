@@ -15,7 +15,7 @@ function getQueryParams() {
       color: expandHexColor(params.get("color") || "FFFFFF"),  // Couleur du texte (blanc par défaut)
       bgColor: expandHexColor(params.get("bgColor") || "00FF00"),  // Couleur du fond (vert par défaut)
       size: params.get("size") ? `${params.get("size")}px` : "380px", // Taille du texte (par défaut 380px)
-      shadow: params.get("shadow") ? params.get("shadow").split("-").map(Number) : [2, 2, 4], // Ombre par défaut
+      shadow: params.get("shadow") ? params.get("shadow").split("-").map(Number) : [2, 2, 4, 100], // Ombre par défaut [2,2,4,100]
       shadowColor: expandHexColor(params.get("shadowColor") || "000000"), // Couleur de l'ombre (noir par défaut)
       style: params.get("style") ? parseInt(params.get("style")) : 1, // Style par défaut = 1
   };
@@ -34,7 +34,6 @@ function updateURL(color, bgColor, size, shadow, shadowColor) {
   window.history.replaceState({}, "", `?${params.toString()}`);
 }
 
-// Fonction pour mettre à jour l'affichage de l'heure et les styles
 // Fonction pour mettre à jour l'affichage de l'heure et les styles
 function updateClock() {
   const { color, bgColor, size, shadow, shadowColor, style } = getQueryParams();
@@ -79,15 +78,32 @@ function updateClock() {
       // Appliquer la taille du texte
       clockElement.style.fontSize = size;
 
-      // Appliquer l'ombre avec la couleur personnalisée
-      if (shadow.length === 3) {
-          clockElement.style.textShadow = `${shadow[0]}px ${shadow[1]}px ${shadow[2]}px ${shadowColor}`;
+      // Appliquer l'ombre avec la couleur personnalisée + opacité
+      if (shadow.length === 4) {
+          const [x, y, blur, opacity] = shadow;
+          const alpha = (opacity / 100).toFixed(2); // Convertir en valeur RGBA (0.00 à 1.00)
+          clockElement.style.textShadow = `${x}px ${y}px ${blur}px rgba(${parseInt(shadowColor.substring(1, 3), 16)},${parseInt(shadowColor.substring(3, 5), 16)},${parseInt(shadowColor.substring(5, 7), 16)},${alpha})`;
       }
 
       // Met à jour l'URL
       updateURL(color, bgColor, size, shadow, shadowColor, style);
   }
 }
+
+// Mise à jour de l'URL pour inclure l'opacité
+function updateURL(color, bgColor, size, shadow, shadowColor, style) {
+  const params = new URLSearchParams();
+  params.set("color", color.replace("#", ""));
+  params.set("bgColor", bgColor.replace("#", ""));
+  params.set("size", parseInt(size)); // Toujours en px
+  params.set("shadow", shadow.join("-")); // Format "2-2-4-25"
+  params.set("shadowColor", shadowColor.replace("#", "")); // Couleur de l'ombre
+  params.set("style", style); // Ajout du style
+
+  // Met à jour l'URL sans recharger la page
+  window.history.replaceState({}, "", `?${params.toString()}`);
+}
+
 
 // Mise à jour de l'URL pour inclure le style
 function updateURL(color, bgColor, size, shadow, shadowColor, style) {
