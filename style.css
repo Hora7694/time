@@ -1,0 +1,24 @@
+body, html {
+  font-family: "Gotham Black", sans-serif;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #00FF00; /* Valeur par défaut pour le fond */
+  overflow: hidden; /* Empêche les débordements */
+}
+
+h1.time_tittle {
+  text-align: center;
+  font-size: 380px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  color: #FFFFFF;
+  margin: 0;
+  white-space: nowrap; /* Évite les sauts de ligne */
+  line-height: 1; /* Évite les écarts verticaux inutiles */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
