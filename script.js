@@ -15,7 +15,7 @@ function getQueryParams() {
       color: expandHexColor(params.get("color") || "FFFFFF"),  // Couleur du texte (blanc par défaut)
       bgColor: expandHexColor(params.get("bgColor") || "00FF00"),  // Couleur du fond (vert par défaut)
       size: params.get("size") ? `${params.get("size")}px` : "380px", // Taille du texte (par défaut 380px)
-      shadow: params.get("shadow") ? params.get("shadow").split("-").map(Number) : [2, 2, 4, 100], // Ombre par défaut [2,2,4,100]
+      shadow: params.get("shadow") ? params.get("shadow").split("-").map(Number) : [5, 5, 25, 25], // Ombre par défaut [5,5,25,25]
       shadowColor: expandHexColor(params.get("shadowColor") || "000000"), // Couleur de l'ombre (noir par défaut)
       style: params.get("style") ? parseInt(params.get("style")) : 1, // Style par défaut = 1
   };
