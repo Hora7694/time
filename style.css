@@ -1,4 +1,3 @@
-/* DÉFINITION DES VARIABLES */
 :root {
     --bg-color: #f8f9fa;
     --text-color: #333;
@@ -177,3 +176,4 @@ footer {
         width: 100%;
     }
 }
+
