@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentions Légales - DataVault</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+        .legal-content { 
+            max-width: 800px; 
+            margin: 40px auto; 
+            padding: 20px; 
+            line-height: 1.7; 
+            color: var(--text-color); 
+        }
+        h2 { 
+            color: var(--text-color); 
+            border-bottom: 2px solid var(--accent-color); 
+            padding-bottom: 5px; 
+            margin-top: 30px; 
+        }
+        section { margin-bottom: 20px; }
+        
+        /* On s'assure que les liens dans le texte restent lisibles */
+        .legal-content a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <button id="theme-toggle">🌙</button>
+
+    <div style="padding: 20px;">
+        <button onclick="window.history.back()" class="btn-back">← Retour</button>
+    </div>
+
+    <main class="legal-content">
+        <h1>Mentions Légales</h1>
+        
+        <section>
+            <h2>1. Édition du site</h2>
+            <p><strong>DataVault</strong> est un service de visualisation de données statiques à but non lucratif. Le site est développé et maintenu par un utilisateur indépendant.</p>
+        </section>
+
+        <section>
+            <h2>2. Propriété Intellectuelle & Paternité</h2>
+            <p>La structure du site et la compilation des fichiers CSV sont l'œuvre de l'auteur du site. Cependant :</p>
+            <ul>
+                <li>Les données brutes (noms, statistiques, visuels cités) appartiennent à leurs propriétaires respectifs (ex: LEVEL-5 Inc.).</li>
+                <li>DataVault utilise ces données sous un usage loyal (Fair Use) à des fins d'information et d'archivage.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>3. Soutien et Contributions</h2>
+            <p>Les liens de soutien (Ko-fi) sont strictement destinés à couvrir les frais techniques et le temps de développement. Ils ne constituent en aucun cas une vente ou une commercialisation des données tierces présentées sur le site.</p>
+        </section>
+
+        <section>
+            <h2>4. Données Personnelles (RGPD)</h2>
+            <p>Ce site ne collecte aucune donnée personnelle. Aucun cookie de pistage n'est utilisé. L'hébergement est assuré par GitHub Pages.</p>
+        </section>
+
+        <section>
+            <h2>5. Responsabilité</h2>
+            <p>L'auteur ne peut être tenu responsable d'éventuelles erreurs contenues dans les bases de données fournies.</p>
+        </section>
+    </main>
+
+    <footer style="text-align: center; padding: 40px; border-top: 1px solid var(--border-color); font-size: 0.85em; color: var(--sub-text); margin-top: 50px;">
+        <p>&copy; 2025 DataVault &bull; Tous droits réservés.</p>
+    </footer>
+
+    <script>
+        // --- LOGIQUE DU DARK MODE (IDENTIQUE AUX AUTRES PAGES) ---
+        const toggleBtn = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        // Vérifier la préférence stockée au chargement
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+            body.classList.add('dark-mode');
+            toggleBtn.textContent = "☀️ Mode Clair";
+        }
+
+        const btn = document.getElementById('theme-toggle');
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            btn.textContent = '☀️';
+        }
+        btn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            btn.textContent = isDark ? '☀️' : '🌙';
+        });
+    </script>
+</body>
+</html>
+
