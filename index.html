@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Time Configurator - DataVault</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="index.css">
     <style id="local-font-style"></style>
     <style>
         html, body { height: 100%; margin: 0; }
@@ -120,17 +120,10 @@
                 </div>
 
                 <div class="setting-group">
-                    <label>Font family</label>
+                    <label>Font family (Nom ou Import)</label>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <select id="font-select" style="flex: 1;">
-                            <option value="'Segoe UI', sans-serif">Segoe UI (Défaut)</option>
-                            <option value="'Arial', sans-serif">Arial</option>
-                            <option value="'Courier New', monospace">Courier New</option>
-                            <option value="'Georgia', serif">Georgia</option>
-                            <option value="'Impact', sans-serif">Impact</option>
-                            <option value="'Verdana', sans-serif">Verdana</option>
-                        </select>
-                        <label for="font-file" class="btn-file">Import .ttf/.otf</label>
+                        <input type="text" id="font-name-input" placeholder="Ex: Impact, Arial..." style="flex: 1;">
+                        <label for="font-file" class="btn-file">Import .ttf</label>
                         <input type="file" id="font-file" accept=".ttf, .otf" style="display: none;">
                     </div>
                 </div>
@@ -169,13 +162,13 @@
                 <div id="preview-box">
                     <div id="preview-text">18:47:44</div>
                 </div>
-                <button class="btn-copy" id="copy-btn">Copier le lien</button>
+                <button class="btn-copy" id="copy-btn">Copier le lien pour OBS</button>
             </div>
         </div>
     </div>
 
     <footer style="text-align: center; padding: 40px; border-top: 1px solid #eee; font-size: 0.85em; color: #888; line-height: 1.8;">
-        <p>© 2025 <strong>kHorah_ </strong>• Tous droits réservés.</p>
+        <p>© 2025 <strong>kHorah_</strong> • Tous droits réservés.</p>
         
         <div style="margin: 20px 0;">
             <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
@@ -187,33 +180,29 @@
 
         <p>&copy; 2025 &bull; <a href="legal.html" style="color: #5553ff; text-decoration: none;">Mentions Légales & Confidentialité</a></p>
     </footer>
-
+    
     <script>
-        const inputs = ['clock-style', 'font-select', 'bgColor', 'textColor', 'textSize', 'sh-x', 'sh-y', 'sh-blur', 'sh-opacity', 'shadowColor'];
+        const inputs = ['clock-style', 'font-name-input', 'bgColor', 'textColor', 'textSize', 'sh-x', 'sh-y', 'sh-blur', 'sh-opacity', 'shadowColor'];
         const previewText = document.getElementById('preview-text');
         const localFontStyle = document.getElementById('local-font-style');
-        let currentFontName = "'Segoe UI', sans-serif";
-        let customFontBase64 = "";
 
+        // Gérer l'importation de fichier pour l'aperçu
         document.getElementById('font-file').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    customFontBase64 = event.target.result;
-                    const fontFace = `@font-face { font-family: 'CustomFont'; src: url('${customFontBase64}'); }`;
+                    // On récupère le nom du fichier sans l'extension
+                    const fontName = file.name.split('.')[0].replace(/[^a-zA-Z0-0]/g, "");
+                    const fontFace = `@font-face { font-family: '${fontName}'; src: url('${event.target.result}'); }`;
                     localFontStyle.innerHTML = fontFace;
-                    currentFontName = 'CustomFont';
+                    
+                    // On remplit le champ texte avec le nom pour que l'aperçu suive
+                    document.getElementById('font-name-input').value = fontName;
                     updatePreview();
                 };
                 reader.readAsDataURL(file);
             }
-        });
-
-        document.getElementById('font-select').addEventListener('change', function(e) {
-            currentFontName = e.target.value;
-            customFontBase64 = ""; // Reset si on repasse sur une police système
-            updatePreview();
         });
 
         function hexToRgba(hex, opacity) {
@@ -224,7 +213,9 @@
         }
 
         function updatePreview() {
-            previewText.style.fontFamily = currentFontName;
+            const fontName = document.getElementById('font-name-input').value || 'Segoe UI';
+            previewText.style.fontFamily = fontName;
+            
             document.getElementById('preview-box').style.backgroundColor = document.getElementById('bgColor').value;
             previewText.style.color = document.getElementById('textColor').value;
             previewText.style.fontSize = (document.getElementById('textSize').value / 3) + "px";
@@ -250,18 +241,14 @@
             p.append('shadowColor', document.getElementById('shadowColor').value.replace('#',''));
             p.append('style', document.getElementById('clock-style').value);
             
-            if (customFontBase64) {
-                // On compresse légèrement la base64 pour l'URL
-                p.append('fontData', customFontBase64);
-            } else {
-                p.append('font', currentFontName.replace(/'/g, ""));
-            }
+            // On envoie juste le NOM de la police (pas le fichier lourd)
+            const fontName = document.getElementById('font-name-input').value;
+            if(fontName) p.append('font', fontName);
 
             const finalUrl = "https://hora7694.github.io/time/?" + p.toString();
-            
-            // Note: Le lien sera très long, c'est normal car il contient le fichier.
             navigator.clipboard.writeText(finalUrl);
-            this.textContent = "Lien OBS copié !";
+            
+            this.textContent = "Lien copié !";
             setTimeout(() => this.textContent = "Copier le lien pour OBS", 2000);
         });
 
@@ -276,5 +263,3 @@
     </script>
 </body>
 </html>
-
-
