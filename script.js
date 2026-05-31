@@ -1,34 +1,3 @@
-// Dictionnaire de correspondance pour GitHub Pages
-const fontMap = [
-    { name: "Basic5 Regular", file: "Basic5.ttf" },
-    { name: "BBH Sans Hegarty Regular", file: "BBHSansHegarty-Regular.ttf" },
-    { name: "BOREX Regular", file: "BOREX-Regular.otf" },
-    { name: "BOREX Slant", file: "BOREX-BOREXSlant.otf" },
-    { name: "BOREX Variation", file: "BOREX-BOREXVariation.otf" },
-    { name: "BOREX Variation Slant", file: "BOREX-BOREXVariationSlant.otf" },
-    { name: "Bulbasaur SP", file: "BulbasaurSP.otf" },
-    { name: "Dareo Regular", file: "Dareo (OTF).otf" },
-    { name: "Gotham Black", file: "Gotham Black Regular.ttf" },
-    { name: "Julygo", file: "Julygo.otf" },
-    { name: "KyodaAscher Regular", file: "KyodaascherRegular-DOPA1.ttf" },
-    { name: "Minecraftia Regular", file: "Minecraftia.ttf" },
-    { name: "Minecraft Ten Font Cyrillic", file: "minecraft-ten-font-cyrillic.ttf" },
-    { name: "Mojangles", file: "Mojangles.ttf" },
-    { name: "Montserrat", file: "Montserrat-VariableFont_wght.ttf" },
-    { name: "Octosale", file: "Octosale.ttf" },
-    { name: "Orbix Regular", file: "Orbix-Regular.ttf" },
-    { name: "Short Pics", file: "Short Pics.ttf" },
-    { name: "Showtoon", file: "Showtoon.otf" },
-    { name: "Somatic Rounded", file: "Somatic-Rounded.otf" },
-    { name: "Super Crumble", file: "Super Crumble.ttf" },
-    { name: "Super Fashion", file: "Super Fashion.ttf" },
-    { name: "Super Folks", file: "Super Folks.ttf" },
-    { name: "Super Trend", file: "Super Trend.ttf" },
-    { name: "Super Mario 256", file: "SuperMario256.ttf" },
-    { name: "Yogurt Extra", file: "Yogurt Extra.ttf" }
-];
-
-
 // Fonction pour convertir une couleur hex abrégée (ex: "0F0") en hex complet (ex: "00FF00")
 function expandHexColor(hex) {
   if (hex.length === 3) {
@@ -106,27 +75,15 @@ function updateClock() {
               const fontFaceStyle = document.createElement('style');
               fontFaceStyle.id = `face-${fontName}`;
               
-              // On cherche la police dans ton tableau fontMap
-              const matchedFont = fontMap.find(f => f.name === fontName);
-              
-              if (matchedFont) {
-                  fontFaceStyle.textContent = `
-                      @font-face {
-                          font-family: '${fontName}';
-                          src: url('fonts/${matchedFont.file}');
-                      }
-                  `;
-              } else {
-                  // On définit des fallbacks d'extensions pour que le navigateur trouve le bon fichier local
-                  fontFaceStyle.textContent = `
-                      @font-face {
-                          font-family: '${fontName}';
-                          src: url('fonts/${fontName}.ttf') format('truetype'),
-                               url('fonts/${fontName}.otf') format('opentype'),
-                               url('fonts/${fontName}.woff2') format('woff2');
-                      }
-                  `;
-              }
+              // On définit des fallbacks d'extensions pour que le navigateur trouve le bon fichier local
+              fontFaceStyle.textContent = `
+                  @font-face {
+                      font-family: '${fontName}';
+                      src: url('fonts/${fontName}.ttf') format('truetype'),
+                           url('fonts/${fontName}.otf') format('opentype'),
+                           url('fonts/${fontName}.woff2') format('woff2');
+                  }
+              `;
               document.head.appendChild(fontFaceStyle);
           }
           
