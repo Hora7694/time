@@ -75,7 +75,14 @@
                 <div id="preview-box">
                     <div id="preview-text">18:47:44</div>
                 </div>
-                <button class="btn-copy" id="copy-btn">Copy the link</button>
+                <button class="btn-copy" id="copy-btn" style="margin-bottom: 5px;">Copy the link</button>
+                
+                <button class="btn-copy" id="toggle-import-btn" style="background-color: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); box-shadow: none; padding: 12px;">Import a configuration</button>
+                
+                <div id="import-zone" style="width: 100%; display: none; flex-direction: column; gap: 8px; margin-top: 5px;">
+                    <input type="text" id="import-url" placeholder="Paste your generated link here..." style="width: 100%; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 14px; outline: none;">
+                    <button class="btn-copy" id="apply-import-btn" style="padding: 10px; font-size: 14px; border-radius: var(--radius-md);">Apply</button>
+                </div>
             </div>
         </div>
     </div>
@@ -277,6 +284,92 @@
             this.textContent = "Link copied!";
             setTimeout(() => this.textContent = "Copy the link", 2000);
         });
+
+
+        // --- LOGIQUE DE L'IMPORTATEUR DE CONFIGURATION ---
+        const toggleImportBtn = document.getElementById('toggle-import-btn');
+        const importZone = document.getElementById('import-zone');
+        const applyImportBtn = document.getElementById('apply-import-btn');
+        const importUrlInput = document.getElementById('import-url');
+
+        // Afficher/Masquer la zone d'import
+        toggleImportBtn.addEventListener('click', () => {
+            if (importZone.style.display === 'none' || importZone.style.display === '') {
+                importZone.style.display = 'flex';
+                toggleImportBtn.textContent = 'Cancel';
+            } else {
+                importZone.style.display = 'none';
+                toggleImportBtn.textContent = 'Import a configuration';
+                importUrlInput.value = '';
+            }
+        });
+
+        // Appliquer les paramètres du lien collé
+        applyImportBtn.addEventListener('click', () => {
+            const urlString = importUrlInput.value.trim();
+            if (!urlString) return;
+
+            try {
+                // Extrait les paramètres de l'URL collée
+                const urlObj = new URL(urlString.includes('?') ? urlString : `http://x.com/?${urlString}`);
+                const params = urlObj.searchParams;
+
+                // 1. Couleur du texte
+                if (params.has('color')) {
+                    document.getElementById('textColor').value = `#${params.get('color')}`;
+                }
+                // 2. Couleur du fond
+                if (params.has('bgColor')) {
+                    document.getElementById('bgColor').value = `#${params.get('bgColor')}`;
+                }
+                // 3. Taille du texte
+                if (params.has('size')) {
+                    document.getElementById('textSize').value = params.get('size');
+                }
+                // 4. Style de l'horloge
+                if (params.has('style')) {
+                    document.getElementById('clock-style').value = params.get('style');
+                }
+                // 5. Couleur de l'ombre
+                if (params.has('shadowColor')) {
+                    document.getElementById('shadowColor').value = `#${params.get('shadowColor')}`;
+                }
+                // 6. Paramètres de l'ombre (X-Y-Blur-Opacity)
+                if (params.has('shadow')) {
+                    const shadowParts = params.get('shadow').split('-');
+                    if (shadowParts.length >= 4) {
+                        document.getElementById('sh-x').value = shadowParts[0];
+                        document.getElementById('sh-y').value = shadowParts[1];
+                        document.getElementById('sh-blur').value = shadowParts[2];
+                        document.getElementById('sh-opacity').value = shadowParts[3];
+                    }
+                }
+                // 7. Sélection de la police
+                if (params.has('font')) {
+                    const fontName = decodeURIComponent(params.get('font')).replace(/\+/g, ' ');
+                    // On vérifie si la police existe dans notre liste chargée
+                    const found = availableFonts.find(f => f.name.toLowerCase() === fontName.toLowerCase());
+                    if (found) {
+                        selectedFont = found.name;
+                        document.getElementById('font-search').value = found.name;
+                    }
+                }
+
+                // Forcer la mise à jour immédiate de l'aperçu graphique
+                updatePreview();
+
+                // Reset et fermeture de la fenêtre d'import avec succès
+                importZone.style.display = 'none';
+                toggleImportBtn.textContent = 'Import a configuration';
+                importUrlInput.value = '';
+                
+                alert('Configuration loaded successfully!');
+            } catch (e) {
+                alert('Invalid URL or link format.');
+                console.error(e);
+            }
+        });
+
 
         // Toggle Dark/Light Mode
         const btn = document.getElementById('theme-toggle');
