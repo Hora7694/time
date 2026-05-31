@@ -148,59 +148,52 @@
         });
 
         // 1. Scan automatique basé sur le listing d'arborescence du dossier /fonts
+        // 1. Liste fixe des polices adaptée pour l'hébergement GitHub Pages
         async function scanFontsFolder() {
-            try {
-                const response = await fetch('fonts/');
-                if (!response.ok) return;
+            const loadedFonts = [
+                { name: "Basic5 Regular", file: "Basic5.ttf" },
+                { name: "BBH Sans Hegarty Regular", file: "BBHSansHegarty-Regular.ttf" },
+                { name: "BOREX Regular", file: "BOREX-Regular.otf" },
+                { name: "BOREX Slant", file: "BOREX-BOREXSlant.otf" },
+                { name: "BOREX Variation", file: "BOREX-BOREXVariation.otf" },
+                { name: "BOREX Variation Slant", file: "BOREX-BOREXVariationSlant.otf" },
+                { name: "Bulbasaur SP", file: "BulbasaurSP.otf" },
+                { name: "Dareo Regular", file: "Dareo (OTF).otf" },
+                { name: "Gotham Black", file: "Gotham Black Regular.ttf" },
+                { name: "Julygo", file: "Julygo.otf" },
+                { name: "KyodaAscher Regular", file: "KyodaascherRegular-DOPA1.ttf" },
+                { name: "Minecraftia Regular", file: "Minecraftia.ttf" },
+                { name: "Minecraft Ten Font Cyrillic", file: "minecraft-ten-font-cyrillic.ttf" },
+                { name: "Mojangles", file: "Mojangles.ttf" },
+                { name: "Montserrat", file: "Montserrat-VariableFont_wght.ttf" },
+                { name: "Octosale", file: "Octosale.ttf" },
+                { name: "Orbix Regular", file: "Orbix-Regular.ttf" },
+                { name: "Short Pics", file: "Short Pics.ttf" },
+                { name: "Showtoon", file: "Showtoon.otf" },
+                { name: "Somatic Rounded", file: "Somatic-Rounded.otf" },
+                { name: "Super Crumble", file: "Super Crumble.ttf" },
+                { name: "Super Fashion", file: "Super Fashion.ttf" },
+                { name: "Super Folks", file: "Super Folks.ttf" },
+                { name: "Super Mario 256", file: "SuperMario256.ttf" },
+                { name: "Super Trend", file: "Super Trend.ttf" },
+                { name: "Worktalk", file: "Worktalk.otf" },
+                { name: "Yogurt Extra", file: "Yogurt Extra.ttf" }
+            ];
 
-                const text = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const links = doc.querySelectorAll('a');
-                
-                const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
-                let loadedFonts = [];
+            // Tri par ordre alphabétique strict
+            availableFonts = loadedFonts.sort((a, b) => a.name.localeCompare(b.name));
 
-                links.forEach(link => {
-                    const href = link.getAttribute('href');
-                    if (!href) return;
-                    
-                    const match = fontExtensions.find(ext => href.toLowerCase().endsWith(ext));
-                    if (match) {
-                        const fileName = href.split('/').pop();
-                        const fontName = decodeURIComponent(fileName).replace(match, '');
-                        loadedFonts.push({ name: fontName, file: fileName });
-                    }
-                });
-
-                // Si le serveur local masque le listing, on utilise les polices principales par défaut
-                if (loadedFonts.length === 0) {
-                    const defaultList = ["Gotham-Black", "Impact", "Montserrat", "ChunkFive", "Minecraft"];
-                    defaultList.forEach(name => {
-                        loadedFonts.push({ name: name, file: `${name}.ttf` });
-                    });
+            // Injection dynamique des @font-face dans le document
+            availableFonts.forEach(font => {
+                if (!document.getElementById(`face-${font.name}`)) {
+                    const fontFace = document.createElement('style');
+                    fontFace.id = `face-${font.name}`;
+                    fontFace.textContent = `@font-face { font-family: '${font.name}'; src: url('fonts/${font.file}'); }`;
+                    document.head.appendChild(fontFace);
                 }
+            });
 
-                // Tri par ordre alphabétique strict
-                availableFonts = loadedFonts.sort((a, b) => a.name.localeCompare(b.name));
-
-                // Injection dynamique des @font-face dans le document
-                availableFonts.forEach(font => {
-                    if (!document.getElementById(`face-${font.name}`)) {
-                        const fontFace = document.createElement('style');
-                        fontFace.id = `face-${font.name}`;
-                        fontFace.textContent = `@font-face { font-family: '${font.name}'; src: url('fonts/${font.file}'); }`;
-                        document.head.appendChild(fontFace);
-                    }
-                });
-
-                initFontSearch();
-
-            } catch (error) {
-                console.error("Impossible de scanner le dossier /fonts :", error);
-                availableFonts = [{ name: "Minecraft", file: "Minecraft.ttf" }, { name: "Gotham-Black", file: "Gotham-Black.ttf" }];
-                initFontSearch();
-            }
+            initFontSearch();
         }
 
         // 2. Initialisation de la barre de recherche et de l'affichage de la boîte déroulante
