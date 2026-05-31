@@ -3,99 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mentions Légales - DataVault</title>
-    <link rel="stylesheet" href="index.css">
-    <style>
-        .legal-content { 
-            max-width: 800px; 
-            margin: 40px auto; 
-            padding: 20px; 
-            line-height: 1.7; 
-            color: var(--text-color); 
-        }
-        h2 { 
-            color: var(--text-color); 
-            border-bottom: 2px solid var(--accent-color); 
-            padding-bottom: 5px; 
-            margin-top: 30px; 
-        }
-        section { margin-bottom: 20px; }
-        
-        /* On s'assure que les liens dans le texte restent lisibles */
-        .legal-content a {
-            color: var(--accent-color);
-            text-decoration: none;
-        }
-    </style>
+    <title>Mentions Légales & Confidentialité - DataVault</title>
+    <link rel="stylesheet" href="legal.css">
 </head>
 <body>
     <button id="theme-toggle">🌙</button>
 
-    <div style="padding: 20px;">
-        <button onclick="window.history.back()" class="btn-back">← Retour</button>
+    <div class="legal-container">
+        <header class="legal-header">
+            <h1>Mentions Légales & Confidentialité</h1>
+            <p class="subtitle">En vigueur au 31 mai 2026</p>
+        </header>
+
+        <main class="legal-content">
+            <section class="legal-card">
+                <h2>1. Édition du site</h2>
+                <p>Le présent site est édité et géré par :</p>
+                <ul>
+                    <li><strong>Directeur de la publication :</strong> kHorah_</li>
+                    <li><strong>Contact:</strong> <a href="https://github.com/Hora7694/time/issues">Github</a></li>
+                </ul>
+                <p class="disclaimer"><em>Conformément à l'article 6-III-2 de la loi n° 2004-575 du 21 juin 2004 (LCEN), l'auteur a choisi de préserver son anonymat. Les coordonnées réelles ont été transmises de manière conforme à l'hébergeur du site.</em></p>
+            </section>
+
+            <section class="legal-card">
+                <h2>2. Hébergement</h2>
+                <p>Le site est hébergé de manière statique par :</p>
+                <ul>
+                    <li><strong>Hébergeur :</strong> GitHub Inc.</li>
+                    <li><strong>Adresse :</strong> 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis</li>
+                    <li><strong>Site web :</strong> https://pages.github.com</li>
+                </ul>
+            </section>
+
+            <!-- Section 3 : Propriété intellectuelle et Polices -->
+            <section class="legal-card">
+                <h2>3. Propriété intellectuelle & Polices</h2>
+                <p>L'ensemble du code source, des designs et des scripts de ce configurateur est la propriété de l'éditeur.</p>
+                <p><strong>Polices de caractères :</strong> Les polices de caractères proposées via cet outil appartiennent à leurs auteurs respectifs. Elles sont utilisées ici à des fins de personnalisation pour l'affichage d'overlays de streaming. Si vous êtes l'ayant droit d'une police présente dans cet outil et que vous souhaitez son retrait, contactez l'éditeur via l'adresse de contact fournie.</p>
+            </section>
+
+            <section class="legal-card">
+                <h2>4. Données & Confidentialité</h2>
+                <p><strong>Aucune donnée personnelle</strong> n'est collectée, traitée ou stockée par ce site.</p>
+                <p>Le site utilise uniquement le stockage local de votre navigateur (<code>localStorage</code>) pour conserver vos choix d'affichage (comme le mode sombre). Aucun cookie de suivi publicitaire n'est utilisé.</p>
+            </section>
+        </main>
+
+        <div class="actions-area">
+            <a href="settings.html" class="btn-back">Retour au configurateur</a>
+        </div>
     </div>
 
-    <main class="legal-content">
-        <h1>Mentions Légales</h1>
+    <footer style="text-align: center; padding: 40px; border-top: 1px solid #eee; font-size: 0.85em; color: #888; line-height: 1.8;">
+        <p>© 2025 <strong>kHorah_</strong> • Tous droits réservés.</p>
         
-        <section>
-            <h2>1. Édition du site</h2>
-            <p><strong>DataVault</strong> est un service de visualisation de données statiques à but non lucratif. Le site est développé et maintenu par un utilisateur indépendant.</p>
-        </section>
+        <div style="margin: 20px 0;">
+            <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
+            <script type='text/javascript'>
+                kofiwidget2.init('Soutenir le projet', '#5553ff', 'T6T117BAZT');
+                kofiwidget2.draw();
+            </script>
+        </div>
 
-        <section>
-            <h2>2. Propriété Intellectuelle & Paternité</h2>
-            <p>La structure du site et la compilation des fichiers CSV sont l'œuvre de l'auteur du site. Cependant :</p>
-            <ul>
-                <li>Les données brutes (noms, statistiques, visuels cités) appartiennent à leurs propriétaires respectifs (ex: LEVEL-5 Inc.).</li>
-                <li>DataVault utilise ces données sous un usage loyal (Fair Use) à des fins d'information et d'archivage.</li>
-            </ul>
-        </section>
-
-        <section>
-            <h2>3. Soutien et Contributions</h2>
-            <p>Les liens de soutien (Ko-fi) sont strictement destinés à couvrir les frais techniques et le temps de développement. Ils ne constituent en aucun cas une vente ou une commercialisation des données tierces présentées sur le site.</p>
-        </section>
-
-        <section>
-            <h2>4. Données Personnelles (RGPD)</h2>
-            <p>Ce site ne collecte aucune donnée personnelle. Aucun cookie de pistage n'est utilisé. L'hébergement est assuré par GitHub Pages.</p>
-        </section>
-
-        <section>
-            <h2>5. Responsabilité</h2>
-            <p>L'auteur ne peut être tenu responsable d'éventuelles erreurs contenues dans les bases de données fournies.</p>
-        </section>
-    </main>
-
-    <footer style="text-align: center; padding: 40px; border-top: 1px solid var(--border-color); font-size: 0.85em; color: var(--sub-text); margin-top: 50px;">
-        <p>&copy; 2025 kHorah_ &bull; Tous droits réservés.</p>
+        <p>&copy; 2025 &bull; <a href="legal.html" style="color: #5553ff; text-decoration: none;">Mentions Légales & Confidentialité</a></p>
     </footer>
 
     <script>
-        // --- LOGIQUE DU DARK MODE (IDENTIQUE AUX AUTRES PAGES) ---
-        const toggleBtn = document.getElementById('theme-toggle');
-        const body = document.body;
-
-        // Vérifier la préférence stockée au chargement
-        if (localStorage.getItem('dark-mode') === 'enabled') {
-            body.classList.add('dark-mode');
-            toggleBtn.textContent = "☀️ Mode Clair";
-        }
-
         const btn = document.getElementById('theme-toggle');
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            btn.textContent = '☀️';
-        }
+        if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+        
         btn.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            btn.textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
         });
     </script>
 </body>
 </html>
-
-

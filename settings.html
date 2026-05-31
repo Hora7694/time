@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Configurator - DataVault</title>
+    <link rel="stylesheet" href="settings.css">
+    <style id="local-font-style"></style>
+</head>
+<body>
+    <button id="theme-toggle">🌙</button>
+
+    <div class="main-content">
+        <h1>Time Configurator</h1>
+
+        <div class="config-container">
+            <div class="settings-column">
+                <h2>Text</h2>
+                <div class="setting-group">
+                    <label>Clock style</label>
+                    <select id="clock-style">
+                        <option value="1">Style 1: HH:MM:SS</option>
+                        <option value="2">Style 2: HHhMM:SS</option>
+                        <option value="3">Style 3: HH:MM</option>
+                        <option value="4">Style 4: HHhMM</option>
+                        <option value="5">Style 5: HHh</option>
+                    </select>
+                </div>
+
+                <div class="setting-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Font family</label>
+                <div class="font-search-container" style="position: relative; width: 100%;">
+                    
+                    <!-- Barre de recherche -->
+                    <input type="text" id="font-search" placeholder="Search for a font..." autocomplete="off" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); box-sizing: border-box;">
+                    
+                    <!-- Liste déroulante forcée au premier plan -->
+                    <div id="font-dropdown-list" style="position: absolute; top: 100%; left: 0; width: 100%; max-height: 200px; overflow-y: auto; background: #ffffff; border: 1px solid #ccc; border-radius: 5px; z-index: 9999; display: none; box-shadow: 0px 4px 6px rgba(0,0,0,0.1); box-sizing: border-box;">
+                        <!-- Les éléments vont s'injecter ici -->
+                    </div>
+                </div>
+            </div>
+
+                <div class="setting-group">
+                    <label>Text size (px)</label>
+                    <input type="number" id="textSize" value="180">
+                </div>
+
+                <h2>Shadow</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="setting-group"><label>Shadow X</label><input type="number" id="sh-x" value="5"></div>
+                    <div class="setting-group"><label>Shadow Y</label><input type="number" id="sh-y" value="5"></div>
+                    <div class="setting-group"><label>Blur (%)</label><input type="number" id="sh-blur" value="25"></div>
+                    <div class="setting-group"><label>Opacity (%)</label><input type="number" id="sh-opacity" value="50"></div>
+                </div>
+
+                <h2>Color</h2>
+                <div style="display: flex; gap: 15px;">
+                    <div class="setting-group">
+                        <label>Background</label>
+                        <input type="color" id="bgColor" value="#00FF00">
+                    </div>
+                    <div class="setting-group">
+                        <label>Font</label>
+                        <input type="color" id="textColor" value="#FFFFFF">
+                    </div>
+                    <div class="setting-group">
+                        <label>Shadow</label>
+                        <input type="color" id="shadowColor" value="#000000">
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-column">
+                <div id="preview-box">
+                    <div id="preview-text">18:47:44</div>
+                </div>
+                <button class="btn-copy" id="copy-btn">Copy the link</button>
+            </div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; padding: 40px; border-top: 1px solid #eee; font-size: 0.85em; color: #888; line-height: 1.8;">
+        <p>© 2025 <strong>kHorah_</strong> • All rights reserved.</p>
+        
+        <div style="margin: 20px 0;">
+            <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
+            <script type='text/javascript'>
+                kofiwidget2.init('Support the project', '#5553ff', 'T6T117BAZT');
+                kofiwidget2.draw();
+            </script>
+        </div>
+
+        <p>&copy; 2025 &bull; <a href="legal.html" style="color: #5553ff; text-decoration: none;">Legal Notice & Privacy Policy</a></p>
+    </footer>
+    
+<script>
+        const previewText = document.getElementById('preview-text');
+        
+        // Liste des inputs à écouter pour la mise à jour automatique (sans font-search)
+        const inputs = ['clock-style', 'bgColor', 'textColor', 'textSize', 'sh-x', 'sh-y', 'sh-blur', 'sh-opacity', 'shadowColor'];
+
+        let availableFonts = [];
+        let selectedFont = "Gotham Black Regular"; // Police par défaut si aucune sélectionnée
+
+        function hexToRgba(hex, opacity) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
+        }
+
+        function updatePreview() {
+            const fontName = selectedFont || 'Gotham Black Regular';
+            previewText.style.fontFamily = fontName;
+            
+            document.getElementById('preview-box').style.backgroundColor = document.getElementById('bgColor').value;
+            previewText.style.color = document.getElementById('textColor').value;
+            previewText.style.fontSize = (document.getElementById('textSize').value / 3) + "px";
+            
+            const shadowRGBA = hexToRgba(document.getElementById('shadowColor').value, document.getElementById('sh-opacity').value);
+            previewText.style.textShadow = `${document.getElementById('sh-x').value/3}px ${document.getElementById('sh-y').value/3}px ${document.getElementById('sh-blur').value/3}px ${shadowRGBA}`;
+
+            // --- Génération de l'heure dynamique pour l'aperçu ---
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            let timeString = "";
+
+            const currentStyle = document.getElementById('clock-style').value;
+            switch (currentStyle) {
+                case "1": timeString = `${hours}:${minutes}:${seconds}`; break;
+                case "2": timeString = `${hours}h${minutes}:${seconds}`; break;
+                case "3": timeString = `${hours}:${minutes}`; break;
+                case "4": timeString = `${hours}h${minutes}`; break;
+                case "5": timeString = `${hours}h`; break;
+                default: timeString = `${hours}:${minutes}:${seconds}`;
+            }
+
+            previewText.textContent = timeString;
+        }
+
+        // Attribution des écouteurs d'événements
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', updatePreview);
+        });
+
+        // 1. Scan automatique basé sur le listing d'arborescence du dossier /fonts
+        async function scanFontsFolder() {
+            try {
+                const response = await fetch('fonts/');
+                if (!response.ok) return;
+
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const links = doc.querySelectorAll('a');
+                
+                const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
+                let loadedFonts = [];
+
+                links.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (!href) return;
+                    
+                    const match = fontExtensions.find(ext => href.toLowerCase().endsWith(ext));
+                    if (match) {
+                        const fileName = href.split('/').pop();
+                        const fontName = decodeURIComponent(fileName).replace(match, '');
+                        loadedFonts.push({ name: fontName, file: fileName });
+                    }
+                });
+
+                // Si le serveur local masque le listing, on utilise les polices principales par défaut
+                if (loadedFonts.length === 0) {
+                    const defaultList = ["Gotham-Black", "Impact", "Montserrat", "ChunkFive", "Minecraft"];
+                    defaultList.forEach(name => {
+                        loadedFonts.push({ name: name, file: `${name}.ttf` });
+                    });
+                }
+
+                // Tri par ordre alphabétique strict
+                availableFonts = loadedFonts.sort((a, b) => a.name.localeCompare(b.name));
+
+                // Injection dynamique des @font-face dans le document
+                availableFonts.forEach(font => {
+                    if (!document.getElementById(`face-${font.name}`)) {
+                        const fontFace = document.createElement('style');
+                        fontFace.id = `face-${font.name}`;
+                        fontFace.textContent = `@font-face { font-family: '${font.name}'; src: url('fonts/${font.file}'); }`;
+                        document.head.appendChild(fontFace);
+                    }
+                });
+
+                initFontSearch();
+
+            } catch (error) {
+                console.error("Impossible de scanner le dossier /fonts :", error);
+                availableFonts = [{ name: "Minecraft", file: "Minecraft.ttf" }, { name: "Gotham-Black", file: "Gotham-Black.ttf" }];
+                initFontSearch();
+            }
+        }
+
+        // 2. Initialisation de la barre de recherche et de l'affichage de la boîte déroulante
+        function initFontSearch() {
+            const searchInput = document.getElementById('font-search');
+            const dropdownList = document.getElementById('font-dropdown-list');
+
+            function renderList(filter = '') {
+                dropdownList.innerHTML = '';
+                const filtered = availableFonts.filter(f => f.name.toLowerCase().includes(filter.toLowerCase()));
+
+                if (filtered.length === 0) {
+                    dropdownList.style.display = 'none';
+                    return;
+                }
+
+                filtered.forEach(font => {
+                    const item = document.createElement('div');
+                    item.className = 'font-dropdown-item';
+                    item.textContent = font.name;
+                    
+                    // Assignation de la police correspondante sur chaque élément de la liste
+                    item.style.fontFamily = font.name;
+                    item.style.padding = '12px 15px';
+                    item.style.cursor = 'pointer';
+                    item.style.color = '#333333';
+                    item.style.backgroundColor = '#ffffff';
+                    item.style.borderBottom = '1px solid #eeeeee';
+
+                    // Gestion du survol
+                    item.addEventListener('mouseenter', () => {
+                        item.style.backgroundColor = '#5553ff';
+                        item.style.color = '#ffffff';
+                    });
+                    item.addEventListener('mouseleave', () => {
+                        item.style.backgroundColor = '#ffffff';
+                        item.style.color = '#333333';
+                    });
+
+                    // Clic pour assigner la valeur et mettre à jour l'aperçu
+                    item.addEventListener('click', () => {
+                        searchInput.value = font.name;
+                        selectedFont = font.name;
+                        dropdownList.style.display = 'none';
+                        updatePreview();
+                    });
+
+                    dropdownList.appendChild(item);
+                });
+
+                dropdownList.style.display = 'block';
+            }
+
+            // Événements d'ouverture et de filtrage
+            searchInput.addEventListener('focus', () => renderList(searchInput.value));
+            searchInput.addEventListener('input', (e) => renderList(e.target.value));
+
+            // Fermeture de la boîte si clic en dehors
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.font-search-container')) {
+                    dropdownList.style.display = 'none';
+                }
+            });
+        }
+
+        // Exécution de la structure de copie du lien pour OBS
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            const p = new URLSearchParams();
+            p.append('color', document.getElementById('textColor').value.replace('#',''));
+            p.append('bgColor', document.getElementById('bgColor').value.replace('#',''));
+            p.append('size', document.getElementById('textSize').value);
+            p.append('shadow', `${document.getElementById('sh-x').value}-${document.getElementById('sh-y').value}-${document.getElementById('sh-blur').value}-${document.getElementById('sh-opacity').value}`);
+            p.append('shadowColor', document.getElementById('shadowColor').value.replace('#',''));
+            p.append('style', document.getElementById('clock-style').value);
+            
+            if (selectedFont) p.append('font', selectedFont);
+
+            const finalUrl = `${window.location.origin}/index.html?${p.toString()}`;
+            navigator.clipboard.writeText(finalUrl);
+            
+            this.textContent = "Link copied!";
+            setTimeout(() => this.textContent = "Copy the link", 2000);
+        });
+
+        // Toggle Dark/Light Mode
+        const btn = document.getElementById('theme-toggle');
+        if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+        btn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        });
+
+        // Initialisation de la boucle de rafraîchissement
+        window.addEventListener('DOMContentLoaded', scanFontsFolder);
+        setInterval(updatePreview, 1000);
+        updatePreview();
+        document.getElementById('font-search').value = selectedFont;
+    </script>
+</body>
+</html>

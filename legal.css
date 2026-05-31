@@ -1,0 +1,223 @@
+/* ==========================================================================
+   CHARTE GRAPHIQUE MENTIONS LÉGALES (legal.css)
+   ========================================================================== */
+:root {
+    --bg-color: #f4f6f8;
+    --text-color: #2c3e50;
+    --title-color: #1a252f;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+    --sub-text: #718096;
+    --accent-color: #5553ff;
+    --accent-hover: #4341e6;
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    --radius-lg: 16px;
+    --radius-md: 10px;
+}
+
+body.dark-mode {
+    --bg-color: #0f172a;
+    --text-color: #cbd5e1;
+    --title-color: #f8fafc;
+    --card-bg: #1e293b;
+    --border-color: #334155;
+    --sub-text: #94a3b8;
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* --- STRUCTURE ET BASE --- */
+* {
+    box-sizing: border-box;
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 0;
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- CONTAINER CENTRAL --- */
+.legal-container {
+    width: 90%;
+    max-width: 850px;
+    margin: 60px auto 40px auto;
+    flex: 1;
+}
+
+/* --- EN-TÊTE --- */
+.legal-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.legal-header h1 {
+    font-size: 2.3em;
+    font-weight: 800;
+    color: var(--title-color);
+    letter-spacing: -0.025em;
+    margin: 0 0 10px 0;
+}
+
+.legal-header .subtitle {
+    font-size: 0.95em;
+    color: var(--sub-text);
+    font-weight: 500;
+    margin: 0;
+}
+
+/* --- BLOCS DE CONTENU (CARDS) --- */
+.legal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.legal-card {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.legal-card h2 {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--title-color);
+    margin: 0 0 15px 0;
+    border-left: 4px solid var(--accent-color);
+    padding-left: 12px;
+}
+
+.legal-card p {
+    font-size: 0.98em;
+    line-height: 1.6;
+    margin: 0 0 15px 0;
+}
+
+.legal-card p:last-child {
+    margin-bottom: 0;
+}
+
+/* --- LISTES À PUCES INTERNES --- */
+.legal-card ul {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.legal-card li {
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+.legal-card li strong {
+    color: var(--title-color);
+}
+
+/* Blocs de code (Siren, mail, url) */
+code {
+    font-family: 'Courier New', Courier, monospace;
+    background: var(--bg-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+/* --- ZONE DE BOUTON DE RETOUR --- */
+.actions-area {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.btn-back {
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: #ffffff;
+    text-decoration: none;
+    padding: 14px 32px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 4px 14px rgba(85, 83, 255, 0.2);
+    transition: transform 0.1s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-back:hover {
+    background-color: var(--accent-hover);
+    box-shadow: 0 6px 20px rgba(85, 83, 255, 0.3);
+}
+
+.btn-back:active {
+    transform: scale(0.98);
+}
+
+/* --- BOUTON THEME TOGGLE (FLOTTANT) --- */
+#theme-toggle {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 2000;
+    padding: 12px;
+    width: 44px;
+    height: 44px;
+    font-size: 1.1em;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#theme-toggle:hover {
+    transform: rotate(15deg);
+    border-color: var(--accent-color);
+}
+
+/* --- FOOTER --- */
+footer {
+    text-align: center;
+    padding: 30px;
+    margin-top: 60px;
+    border-top: 1px solid var(--border-color);
+    background: var(--card-bg);
+    font-size: 0.85em;
+    color: var(--sub-text);
+}
+
+footer strong {
+    color: var(--title-color);
+}
+
+/* --- RESPONSIVE MODÉRATEUR --- */
+@media (max-width: 600px) {
+    .legal-container {
+        width: 92%;
+        margin-top: 40px;
+    }
+    .legal-header h1 {
+        font-size: 1.8em;
+    }
+    .legal-card {
+        padding: 20px;
+    }
+    #theme-toggle {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+    }
+}
