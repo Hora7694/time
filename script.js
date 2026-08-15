@@ -28,7 +28,6 @@ const fontMap = [
     { name: "Yogurt Extra", file: "Yogurt Extra.ttf" }
 ];
 
-
 // Fonction pour convertir une couleur hex abrégée (ex: "0F0") en hex complet (ex: "00FF00")
 function expandHexColor(hex) {
   if (hex.length === 3) {
@@ -49,6 +48,7 @@ function getQueryParams() {
       shadow: params.get("shadow") ? params.get("shadow").split("-").map(Number) : [5, 5, 25, 50], // Ombre par défaut
       shadowColor: expandHexColor(params.get("shadowColor") || "000000"), // Couleur de l'ombre (noir par défaut)
       style: params.get("style") ? parseInt(params.get("style")) : 1, // Style par défaut = 1
+      tz: params.get("tz") || "local" // Fuseau horaire ("local" par défaut)
   };
 }
 
@@ -66,6 +66,7 @@ function updateClock() {
   const color = expandHexColor(params.get("color") || "FFFFFF");
   const bgColor = expandHexColor(params.get("bgColor") || "00FF00");
   const size = params.get("size") ? `${params.get("size")}px` : "380px";
+  const tz = params.get("tz") || "local";
   
   // Récupération de l'ombre [X, Y, Blur, Opacity]
   const shadowParams = params.get("shadow") ? params.get("shadow").split("-").map(Number) : [5, 5, 25, 50];
@@ -77,9 +78,19 @@ function updateClock() {
 
   if (clockElement) {
       const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      // Extraction de l'heure ajustée selon le fuseau via Intl
+      const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+      if (tz !== 'local') options.timeZone = tz;
+
+      const formatter = new Intl.DateTimeFormat('fr-FR', options);
+      const parts = formatter.formatToParts(now);
+      const partMap = {};
+      parts.forEach(p => partMap[p.type] = p.value);
+
+      const hours = partMap.hour || "00";
+      const minutes = partMap.minute || "00";
+      const seconds = partMap.second || "00";
       let timeString = "";
 
       switch (style) {
@@ -146,7 +157,7 @@ function updateClock() {
 }
 
 // Fonction pour mettre à jour l'URL pour inclure le style sans recharger la page
-function updateURL(color, bgColor, size, shadow, shadowColor, style) {
+function updateURL(color, bgColor, size, shadow, shadowColor, style, tz) {
   const params = new URLSearchParams();
   params.set("color", color.replace("#", ""));
   params.set("bgColor", bgColor.replace("#", ""));
@@ -154,6 +165,7 @@ function updateURL(color, bgColor, size, shadow, shadowColor, style) {
   params.set("shadow", shadow.join("-")); // Format "2-2-4"
   params.set("shadowColor", shadowColor.replace("#", "")); // Couleur de l'ombre
   params.set("style", style); // Ajout du style
+  if (tz && tz !== "local") params.set("tz", tz);
 
   window.history.replaceState({}, "", `?${params.toString()}`);
 }
