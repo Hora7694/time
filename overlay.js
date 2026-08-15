@@ -1,0 +1,177 @@
+// Dictionnaire de correspondance pour GitHub Pages
+const fontMap = [
+    { name: "Basic5 Regular", file: "Basic5.ttf" },
+    { name: "BBH Sans Hegarty Regular", file: "BBHSansHegarty-Regular.ttf" },
+    { name: "BOREX Regular", file: "BOREX-Regular.otf" },
+    { name: "BOREX Slant", file: "BOREX-BOREXSlant.otf" },
+    { name: "BOREX Variation", file: "BOREX-BOREXVariation.otf" },
+    { name: "BOREX Variation Slant", file: "BOREX-BOREXVariationSlant.otf" },
+    { name: "Bulbasaur SP", file: "BulbasaurSP.otf" },
+    { name: "Dareo Regular", file: "Dareo (OTF).otf" },
+    { name: "Gotham Black", file: "Gotham Black Regular.ttf" },
+    { name: "Julygo", file: "Julygo.otf" },
+    { name: "KyodaAscher Regular", file: "KyodaascherRegular-DOPA1.ttf" },
+    { name: "Minecraftia Regular", file: "Minecraftia.ttf" },
+    { name: "Minecraft Ten Font Cyrillic", file: "minecraft-ten.ttf" },
+    { name: "Mojangles", file: "Mojangles.ttf" },
+    { name: "Montserrat", file: "Montserrat-VariableFont_wght.ttf" },
+    { name: "Octosale", file: "Octosale.ttf" },
+    { name: "Orbix Regular", file: "Orbix-Regular.ttf" },
+    { name: "Short Pics", file: "Short Pics.ttf" },
+    { name: "Showtoon", file: "Showtoon.otf" },
+    { name: "Somatic Rounded", file: "Somatic-Rounded.otf" },
+    { name: "Super Crumble", file: "Super Crumble.ttf" },
+    { name: "Super Fashion", file: "Super Fashion.ttf" },
+    { name: "Super Folks", file: "Super Folks.ttf" },
+    { name: "Super Trend", file: "Super Trend.ttf" },
+    { name: "Super Mario 256", file: "SuperMario256.ttf" },
+    { name: "Yogurt Extra", file: "Yogurt Extra.ttf" }
+];
+
+// Fonction pour convertir une couleur hex abrégée (ex: "0F0") en hex complet (ex: "00FF00")
+function expandHexColor(hex) {
+  if (hex.length === 3) {
+      return `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+  } else if (hex.length === 6) {
+      return `#${hex}`;
+  }
+  return "#FFFFFF"; // Valeur par défaut si incorrect
+}
+
+// Fonction pour récupérer les paramètres de l'URL
+function getQueryParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+      color: expandHexColor(params.get("color") || "FFFFFF"),  // Couleur du texte (blanc par défaut)
+      bgColor: expandHexColor(params.get("bgColor") || "00FF00"),  // Couleur du fond (vert par défaut)
+      size: params.get("size") ? `${params.get("size")}px` : "380px", // Taille du texte (par défaut 380px)
+      shadow: params.get("shadow") ? params.get("shadow").split("-").map(Number) : [5, 5, 25, 50], // Ombre par défaut
+      shadowColor: expandHexColor(params.get("shadowColor") || "000000"), // Couleur de l'ombre (noir par défaut)
+      style: params.get("style") ? parseInt(params.get("style")) : 1, // Style par défaut = 1
+      tz: params.get("tz") || "local" // Fuseau horaire ("local" par défaut)
+  };
+}
+
+// Fonction outil pour l'opacité
+function hexToRgba(hex, opacity) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
+}
+
+// Fonction pour mettre à jour l'affichage de l'heure et les styles
+function updateClock() {
+  const params = new URLSearchParams(window.location.search);
+  const color = expandHexColor(params.get("color") || "FFFFFF");
+  const bgColor = expandHexColor(params.get("bgColor") || "00FF00");
+  const size = params.get("size") ? `${params.get("size")}px` : "380px";
+  const tz = params.get("tz") || "local";
+  
+  // Récupération de l'ombre [X, Y, Blur, Opacity]
+  const shadowParams = params.get("shadow") ? params.get("shadow").split("-").map(Number) : [5, 5, 25, 50];
+  const shadowColor = expandHexColor(params.get("shadowColor") || "000000");
+  const style = params.get("style") ? parseInt(params.get("style")) : 1;
+
+  const clockElement = document.getElementById('clock');
+  const bodyElement = document.body;
+
+  if (clockElement) {
+      const now = new Date();
+
+      // Extraction de l'heure ajustée selon le fuseau via Intl
+      const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+      if (tz !== 'local') options.timeZone = tz;
+
+      const formatter = new Intl.DateTimeFormat('fr-FR', options);
+      const parts = formatter.formatToParts(now);
+      const partMap = {};
+      parts.forEach(p => partMap[p.type] = p.value);
+
+      const hours = partMap.hour || "00";
+      const minutes = partMap.minute || "00";
+      const seconds = partMap.second || "00";
+      let timeString = "";
+
+      switch (style) {
+          case 1: timeString = `${hours}:${minutes}:${seconds}`; break;
+          case 2: timeString = `${hours}h${minutes}:${seconds}`; break;
+          case 3: timeString = `${hours}:${minutes}`; break;
+          case 4: timeString = `${hours}h${minutes}`; break;
+          case 5: timeString = `${hours}h`; break;
+          default: timeString = `${hours}:${minutes}:${seconds}`;
+      }
+
+      clockElement.textContent = timeString;
+      clockElement.style.color = color;
+      bodyElement.style.background = bgColor;
+      clockElement.style.fontSize = size;
+
+      // --- INJECTION ET APPLICATION EN TEMPS RÉEL DE LA POLICE ---
+      const fontParam = params.get("font");
+      if (fontParam) {
+          const fontName = decodeURIComponent(fontParam);
+          
+          // Si la règle CSS @font-face pour cette police n'existe pas encore dans la page, on la crée
+          if (!document.getElementById(`face-${fontName}`)) {
+              const fontFaceStyle = document.createElement('style');
+              fontFaceStyle.id = `face-${fontName}`;
+              
+              // On cherche la police dans le tableau fontMap
+              const matchedFont = fontMap.find(f => f.name === fontName);
+              
+              if (matchedFont) {
+                  fontFaceStyle.textContent = `
+                      @font-face {
+                          font-family: '${fontName}';
+                          src: url('fonts/${matchedFont.file}');
+                      }
+                  `;
+              } else {
+                  // Fallback
+                  fontFaceStyle.textContent = `
+                      @font-face {
+                          font-family: '${fontName}';
+                          src: url('fonts/${fontName}.ttf') format('truetype'),
+                               url('fonts/${fontName}.otf') format('opentype'),
+                               url('fonts/${fontName}.woff2') format('woff2');
+                      }
+                  `;
+              }
+              document.head.appendChild(fontFaceStyle);
+          }
+          
+          clockElement.style.fontFamily = `'${fontName}', sans-serif`;
+      } else {
+          clockElement.style.fontFamily = '"Gotham Black", sans-serif';
+      }
+
+      // Application de l'ombre
+      if (shadowParams.length === 4) {
+          const rgbaColor = hexToRgba(shadowColor, shadowParams[3]);
+          clockElement.style.textShadow = `${shadowParams[0] / 3}px ${shadowParams[1] / 3}px ${shadowParams[2] / 3}px ${rgbaColor}`;
+      } else if (shadowParams.length === 3) {
+          clockElement.style.textShadow = `${shadowParams[0] / 3}px ${shadowParams[1] / 3}px ${shadowParams[2] / 3}px ${shadowColor}`;
+      }
+  }
+}
+
+// Fonction pour mettre à jour l'URL sans recharger la page
+function updateURL(color, bgColor, size, shadow, shadowColor, style, tz) {
+  const params = new URLSearchParams();
+  params.set("color", color.replace("#", ""));
+  params.set("bgColor", bgColor.replace("#", ""));
+  params.set("size", parseInt(size));
+  params.set("shadow", shadow.join("-"));
+  params.set("shadowColor", shadowColor.replace("#", ""));
+  params.set("style", style);
+  if (tz && tz !== "local") params.set("tz", tz);
+
+  window.history.replaceState({}, "", `?${params.toString()}`);
+}
+
+// Mettre à jour l'heure toutes les secondes
+setInterval(updateClock, 1000);
+
+// Appel initial
+updateClock();

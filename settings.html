@@ -27,19 +27,33 @@
                     </select>
                 </div>
 
+                <div class="setting-group">
+                    <label>Timezone</label>
+                    <select id="time-zone">
+                        <option value="local">Local (Default)</option>
+                        <option value="UTC">UTC / GMT</option>
+                        <option value="Europe/Paris">Europe / Paris (CET/CEST)</option>
+                        <option value="Europe/London">Europe / London (GMT/BST)</option>
+                        <option value="America/New_York">America / New York (EST/EDT)</option>
+                        <option value="America/Los_Angeles">America / Los Angeles (PST/PDT)</option>
+                        <option value="Asia/Tokyo">Asia / Tokyo (JST)</option>
+                        <option value="Australia/Sydney">Australia / Sydney (AEST/AEDT)</option>
+                    </select>
+                </div>
+
                 <div class="setting-group" style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Font family</label>
-                <div class="font-search-container" style="position: relative; width: 100%;">
-                    
-                    <!-- Barre de recherche -->
-                    <input type="text" id="font-search" placeholder="Search for a font..." autocomplete="off" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); box-sizing: border-box;">
-                    
-                    <!-- Liste déroulante forcée au premier plan -->
-                    <div id="font-dropdown-list" style="position: absolute; top: 100%; left: 0; width: 100%; max-height: 200px; overflow-y: auto; background: #ffffff; border: 1px solid #ccc; border-radius: 5px; z-index: 9999; display: none; box-shadow: 0px 4px 6px rgba(0,0,0,0.1); box-sizing: border-box;">
-                        <!-- Les éléments vont s'injecter ici -->
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Font family</label>
+                    <div class="font-search-container" style="position: relative; width: 100%;">
+                        
+                        <!-- Barre de recherche -->
+                        <input type="text" id="font-search" placeholder="Search for a font..." autocomplete="off" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); box-sizing: border-box;">
+                        
+                        <!-- Liste déroulante forcée au premier plan -->
+                        <div id="font-dropdown-list" style="position: absolute; top: 100%; left: 0; width: 100%; max-height: 200px; overflow-y: auto; background: #ffffff; border: 1px solid #ccc; border-radius: 5px; z-index: 9999; display: none; box-shadow: 0px 4px 6px rgba(0,0,0,0.1); box-sizing: border-box;">
+                            <!-- Les éléments vont s'injecter ici -->
+                        </div>
                     </div>
                 </div>
-            </div>
 
                 <div class="setting-group">
                     <label>Text size (px)</label>
@@ -101,11 +115,11 @@
         <p>&copy; 2025 &bull; <a href="legal.html" style="color: #5553ff; text-decoration: none;">Legal Notice & Privacy Policy</a></p>
     </footer>
     
-<script>
+    <script>
         const previewText = document.getElementById('preview-text');
         
-        // Liste des inputs à écouter pour la mise à jour automatique (sans font-search)
-        const inputs = ['clock-style', 'bgColor', 'textColor', 'textSize', 'sh-x', 'sh-y', 'sh-blur', 'sh-opacity', 'shadowColor'];
+        // Liste des inputs à écouter pour la mise à jour automatique
+        const inputs = ['clock-style', 'time-zone', 'bgColor', 'textColor', 'textSize', 'sh-x', 'sh-y', 'sh-blur', 'sh-opacity', 'shadowColor'];
 
         let availableFonts = [];
         let selectedFont = "Gotham Black"; // Police par défaut si aucune sélectionnée
@@ -130,9 +144,26 @@
 
             // --- Génération de l'heure dynamique pour l'aperçu ---
             const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeZone = document.getElementById('time-zone') ? document.getElementById('time-zone').value : 'local';
+
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            if (timeZone !== 'local') {
+                options.timeZone = timeZone;
+            }
+
+            const formatter = new Intl.DateTimeFormat('fr-FR', options);
+            const parts = formatter.formatToParts(now);
+            const partMap = {};
+            parts.forEach(p => partMap[p.type] = p.value);
+
+            const hours = partMap.hour || "00";
+            const minutes = partMap.minute || "00";
+            const seconds = partMap.second || "00";
             let timeString = "";
 
             const currentStyle = document.getElementById('clock-style').value;
@@ -154,7 +185,6 @@
             if (el) el.addEventListener('input', updatePreview);
         });
 
-        // 1. Scan automatique basé sur le listing d'arborescence du dossier /fonts
         // 1. Liste fixe des polices adaptée pour l'hébergement GitHub Pages
         async function scanFontsFolder() {
             const loadedFonts = [
@@ -170,7 +200,7 @@
                 { name: "Julygo", file: "Julygo.otf" },
                 { name: "KyodaAscher Regular", file: "KyodaascherRegular-DOPA1.ttf" },
                 { name: "Minecraftia Regular", file: "Minecraftia.ttf" },
-                { name: "Minecraft Ten Font Cyrillic", file: "minecraft-ten-font-cyrillic.ttf" },
+                { name: "Minecraft Ten Font Cyrillic", file: "Minecraft-Ten.ttf" },
                 { name: "Mojangles", file: "Mojangles.ttf" },
                 { name: "Montserrat", file: "Montserrat-VariableFont_wght.ttf" },
                 { name: "Octosale", file: "Octosale.ttf" },
@@ -222,7 +252,6 @@
                     item.className = 'font-dropdown-item';
                     item.textContent = font.name;
                     
-                    // Assignation de la police correspondante sur chaque élément de la liste
                     item.style.fontFamily = font.name;
                     item.style.padding = '12px 15px';
                     item.style.cursor = 'pointer';
@@ -276,6 +305,9 @@
             p.append('shadowColor', document.getElementById('shadowColor').value.replace('#',''));
             p.append('style', document.getElementById('clock-style').value);
             
+            const tz = document.getElementById('time-zone') ? document.getElementById('time-zone').value : 'local';
+            if (tz !== 'local') p.append('tz', tz);
+
             if (selectedFont) p.append('font', selectedFont);
 
             const finalUrl = `${window.location.origin}/time?${p.toString()}`;
@@ -284,7 +316,6 @@
             this.textContent = "Link copied!";
             setTimeout(() => this.textContent = "Copy the link", 2000);
         });
-
 
         // --- LOGIQUE DE L'IMPORTATEUR DE CONFIGURATION ---
         const toggleImportBtn = document.getElementById('toggle-import-btn');
@@ -310,7 +341,6 @@
             if (!urlString) return;
 
             try {
-                // Extrait les paramètres de l'URL collée
                 const urlObj = new URL(urlString.includes('?') ? urlString : `http://x.com/?${urlString}`);
                 const params = urlObj.searchParams;
 
@@ -330,11 +360,19 @@
                 if (params.has('style')) {
                     document.getElementById('clock-style').value = params.get('style');
                 }
-                // 5. Couleur de l'ombre
+                // 5. Fuseau horaire
+                if (params.has('tz')) {
+                    const tzVal = params.get('tz');
+                    const tzSelect = document.getElementById('time-zone');
+                    if (tzSelect) tzSelect.value = tzVal;
+                } else if (document.getElementById('time-zone')) {
+                    document.getElementById('time-zone').value = 'local';
+                }
+                // 6. Couleur de l'ombre
                 if (params.has('shadowColor')) {
                     document.getElementById('shadowColor').value = `#${params.get('shadowColor')}`;
                 }
-                // 6. Paramètres de l'ombre (X-Y-Blur-Opacity)
+                // 7. Paramètres de l'ombre (X-Y-Blur-Opacity)
                 if (params.has('shadow')) {
                     const shadowParts = params.get('shadow').split('-');
                     if (shadowParts.length >= 4) {
@@ -344,10 +382,9 @@
                         document.getElementById('sh-opacity').value = shadowParts[3];
                     }
                 }
-                // 7. Sélection de la police
+                // 8. Sélection de la police
                 if (params.has('font')) {
                     const fontName = decodeURIComponent(params.get('font')).replace(/\+/g, ' ');
-                    // On vérifie si la police existe dans notre liste chargée
                     const found = availableFonts.find(f => f.name.toLowerCase() === fontName.toLowerCase());
                     if (found) {
                         selectedFont = found.name;
@@ -368,7 +405,6 @@
                 console.error(e);
             }
         });
-
 
         // Toggle Dark/Light Mode
         const btn = document.getElementById('theme-toggle');
