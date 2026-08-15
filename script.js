@@ -48,7 +48,8 @@ function getQueryParams() {
       shadow: params.get("shadow") ? params.get("shadow").split("-").map(Number) : [5, 5, 25, 50], // Ombre par défaut
       shadowColor: expandHexColor(params.get("shadowColor") || "000000"), // Couleur de l'ombre (noir par défaut)
       style: params.get("style") ? parseInt(params.get("style")) : 1, // Style par défaut = 1
-      tz: params.get("tz") || "local" // Fuseau horaire ("local" par défaut)
+      tz: params.get("tz") || "local", // Fuseau horaire 1 ("local" par défaut)
+      tz2: params.get("tz2") || "none" // Fuseau horaire 2 ("none" par défaut)
   };
 }
 
@@ -60,13 +61,38 @@ function hexToRgba(hex, opacity) {
   return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
 }
 
+// Fonction auxiliaire pour formater l'heure d'un fuseau spécifique selon le style choisi
+function getTimeString(now, tz, style) {
+  const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+  if (tz !== 'local') options.timeZone = tz;
+
+  const formatter = new Intl.DateTimeFormat('fr-FR', options);
+  const parts = formatter.formatToParts(now);
+  const partMap = {};
+  parts.forEach(p => partMap[p.type] = p.value);
+
+  const hours = partMap.hour || "00";
+  const minutes = partMap.minute || "00";
+  const seconds = partMap.second || "00";
+
+  switch (style) {
+      case 1: return `${hours}:${minutes}:${seconds}`;
+      case 2: return `${hours}h${minutes}:${seconds}`;
+      case 3: return `${hours}:${minutes}`;
+      case 4: return `${hours}h${minutes}`;
+      case 5: return `${hours}h`;
+      default: return `${hours}:${minutes}:${seconds}`;
+  }
+}
+
 // Fonction pour mettre à jour l'affichage de l'heure et les styles
 function updateClock() {
   const params = new URLSearchParams(window.location.search);
   const color = expandHexColor(params.get("color") || "FFFFFF");
   const bgColor = expandHexColor(params.get("bgColor") || "00FF00");
   const size = params.get("size") ? `${params.get("size")}px` : "380px";
-  const tz = params.get("tz") || "local";
+  const tz1 = params.get("tz") || "local";
+  const tz2 = params.get("tz2") || "none";
   
   // Récupération de l'ombre [X, Y, Blur, Opacity]
   const shadowParams = params.get("shadow") ? params.get("shadow").split("-").map(Number) : [5, 5, 25, 50];
@@ -79,27 +105,13 @@ function updateClock() {
   if (clockElement) {
       const now = new Date();
 
-      // Extraction de l'heure ajustée selon le fuseau via Intl
-      const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-      if (tz !== 'local') options.timeZone = tz;
+      // Génération du texte pour le premier fuseau
+      let timeString = getTimeString(now, tz1, style);
 
-      const formatter = new Intl.DateTimeFormat('fr-FR', options);
-      const parts = formatter.formatToParts(now);
-      const partMap = {};
-      parts.forEach(p => partMap[p.type] = p.value);
-
-      const hours = partMap.hour || "00";
-      const minutes = partMap.minute || "00";
-      const seconds = partMap.second || "00";
-      let timeString = "";
-
-      switch (style) {
-          case 1: timeString = `${hours}:${minutes}:${seconds}`; break;
-          case 2: timeString = `${hours}h${minutes}:${seconds}`; break;
-          case 3: timeString = `${hours}:${minutes}`; break;
-          case 4: timeString = `${hours}h${minutes}`; break;
-          case 5: timeString = `${hours}h`; break;
-          default: timeString = `${hours}:${minutes}:${seconds}`;
+      // Ajout du second fuseau avec le séparateur "|" si activé
+      if (tz2 !== 'none') {
+          const timeString2 = getTimeString(now, tz2, style);
+          timeString += ` | ${timeString2}`;
       }
 
       clockElement.textContent = timeString;
@@ -156,8 +168,8 @@ function updateClock() {
   }
 }
 
-// Fonction pour mettre à jour l'URL pour inclure le style sans recharger la page
-function updateURL(color, bgColor, size, shadow, shadowColor, style, tz) {
+// Fonction pour mettre à jour l'URL pour inclure le style et les fuseaux sans recharger la page
+function updateURL(color, bgColor, size, shadow, shadowColor, style, tz, tz2) {
   const params = new URLSearchParams();
   params.set("color", color.replace("#", ""));
   params.set("bgColor", bgColor.replace("#", ""));
@@ -166,6 +178,7 @@ function updateURL(color, bgColor, size, shadow, shadowColor, style, tz) {
   params.set("shadowColor", shadowColor.replace("#", "")); // Couleur de l'ombre
   params.set("style", style); // Ajout du style
   if (tz && tz !== "local") params.set("tz", tz);
+  if (tz2 && tz2 !== "none") params.set("tz2", tz2);
 
   window.history.replaceState({}, "", `?${params.toString()}`);
 }

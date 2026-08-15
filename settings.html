@@ -27,10 +27,27 @@
                     </select>
                 </div>
 
+                <!-- Fuseau horaire 1 -->
                 <div class="setting-group">
-                    <label>Timezone</label>
-                    <select id="time-zone">
+                    <label>Timezone 1</label>
+                    <select id="time-zone-1">
                         <option value="local">Local (Default)</option>
+                        <option value="UTC">UTC / GMT</option>
+                        <option value="Europe/Paris">Europe / Paris (CET/CEST)</option>
+                        <option value="Europe/London">Europe / London (GMT/BST)</option>
+                        <option value="America/New_York">America / New York (EST/EDT)</option>
+                        <option value="America/Los_Angeles">America / Los Angeles (PST/PDT)</option>
+                        <option value="Asia/Tokyo">Asia / Tokyo (JST)</option>
+                        <option value="Australia/Sydney">Australia / Sydney (AEST/AEDT)</option>
+                    </select>
+                </div>
+
+                <!-- Fuseau horaire 2 (Optionnel / Désactivé par défaut) -->
+                <div class="setting-group">
+                    <label>Timezone 2 (Optional)</label>
+                    <select id="time-zone-2">
+                        <option value="none">None (Disabled)</option>
+                        <option value="local">Local</option>
                         <option value="UTC">UTC / GMT</option>
                         <option value="Europe/Paris">Europe / Paris (CET/CEST)</option>
                         <option value="Europe/London">Europe / London (GMT/BST)</option>
@@ -119,7 +136,7 @@
         const previewText = document.getElementById('preview-text');
         
         // Liste des inputs à écouter pour la mise à jour automatique
-        const inputs = ['clock-style', 'time-zone', 'bgColor', 'textColor', 'textSize', 'sh-x', 'sh-y', 'sh-blur', 'sh-opacity', 'shadowColor'];
+        const inputs = ['clock-style', 'time-zone-1', 'time-zone-2', 'bgColor', 'textColor', 'textSize', 'sh-x', 'sh-y', 'sh-blur', 'sh-opacity', 'shadowColor'];
 
         let availableFonts = [];
         let selectedFont = "Gotham Black"; // Police par défaut si aucune sélectionnée
@@ -129,6 +146,37 @@
             const g = parseInt(hex.slice(3, 5), 16);
             const b = parseInt(hex.slice(5, 7), 16);
             return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
+        }
+
+        // Fonction auxiliaire pour formater l'heure d'une zone spécifique selon le style choisi
+        function getTimeString(now, tz, style) {
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            if (tz !== 'local') {
+                options.timeZone = tz;
+            }
+
+            const formatter = new Intl.DateTimeFormat('fr-FR', options);
+            const parts = formatter.formatToParts(now);
+            const partMap = {};
+            parts.forEach(p => partMap[p.type] = p.value);
+
+            const hours = partMap.hour || "00";
+            const minutes = partMap.minute || "00";
+            const seconds = partMap.second || "00";
+
+            switch (style) {
+                case "1": return `${hours}:${minutes}:${seconds}`;
+                case "2": return `${hours}h${minutes}:${seconds}`;
+                case "3": return `${hours}:${minutes}`;
+                case "4": return `${hours}h${minutes}`;
+                case "5": return `${hours}h`;
+                default: return `${hours}:${minutes}:${seconds}`;
+            }
         }
 
         function updatePreview() {
@@ -144,36 +192,15 @@
 
             // --- Génération de l'heure dynamique pour l'aperçu ---
             const now = new Date();
-            const timeZone = document.getElementById('time-zone') ? document.getElementById('time-zone').value : 'local';
-
-            const options = {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            };
-            if (timeZone !== 'local') {
-                options.timeZone = timeZone;
-            }
-
-            const formatter = new Intl.DateTimeFormat('fr-FR', options);
-            const parts = formatter.formatToParts(now);
-            const partMap = {};
-            parts.forEach(p => partMap[p.type] = p.value);
-
-            const hours = partMap.hour || "00";
-            const minutes = partMap.minute || "00";
-            const seconds = partMap.second || "00";
-            let timeString = "";
-
+            const tz1 = document.getElementById('time-zone-1') ? document.getElementById('time-zone-1').value : 'local';
+            const tz2 = document.getElementById('time-zone-2') ? document.getElementById('time-zone-2').value : 'none';
             const currentStyle = document.getElementById('clock-style').value;
-            switch (currentStyle) {
-                case "1": timeString = `${hours}:${minutes}:${seconds}`; break;
-                case "2": timeString = `${hours}h${minutes}:${seconds}`; break;
-                case "3": timeString = `${hours}:${minutes}`; break;
-                case "4": timeString = `${hours}h${minutes}`; break;
-                case "5": timeString = `${hours}h`; break;
-                default: timeString = `${hours}:${minutes}:${seconds}`;
+
+            let timeString = getTimeString(now, tz1, currentStyle);
+
+            if (tz2 !== 'none') {
+                const timeString2 = getTimeString(now, tz2, currentStyle);
+                timeString += ` | ${timeString2}`;
             }
 
             previewText.textContent = timeString;
@@ -305,8 +332,11 @@
             p.append('shadowColor', document.getElementById('shadowColor').value.replace('#',''));
             p.append('style', document.getElementById('clock-style').value);
             
-            const tz = document.getElementById('time-zone') ? document.getElementById('time-zone').value : 'local';
-            if (tz !== 'local') p.append('tz', tz);
+            const tz1 = document.getElementById('time-zone-1') ? document.getElementById('time-zone-1').value : 'local';
+            const tz2 = document.getElementById('time-zone-2') ? document.getElementById('time-zone-2').value : 'none';
+
+            if (tz1 !== 'local') p.append('tz', tz1);
+            if (tz2 !== 'none') p.append('tz2', tz2);
 
             if (selectedFont) p.append('font', selectedFont);
 
@@ -360,13 +390,21 @@
                 if (params.has('style')) {
                     document.getElementById('clock-style').value = params.get('style');
                 }
-                // 5. Fuseau horaire
+                // 5. Fuseau horaire 1
                 if (params.has('tz')) {
                     const tzVal = params.get('tz');
-                    const tzSelect = document.getElementById('time-zone');
-                    if (tzSelect) tzSelect.value = tzVal;
-                } else if (document.getElementById('time-zone')) {
-                    document.getElementById('time-zone').value = 'local';
+                    const tzSelect1 = document.getElementById('time-zone-1');
+                    if (tzSelect1) tzSelect1.value = tzVal;
+                } else if (document.getElementById('time-zone-1')) {
+                    document.getElementById('time-zone-1').value = 'local';
+                }
+                // 5b. Fuseau horaire 2
+                if (params.has('tz2')) {
+                    const tz2Val = params.get('tz2');
+                    const tzSelect2 = document.getElementById('time-zone-2');
+                    if (tzSelect2) tzSelect2.value = tz2Val;
+                } else if (document.getElementById('time-zone-2')) {
+                    document.getElementById('time-zone-2').value = 'none';
                 }
                 // 6. Couleur de l'ombre
                 if (params.has('shadowColor')) {
