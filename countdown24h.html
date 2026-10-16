@@ -80,12 +80,25 @@
             try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
         }
 
+        // Style d'affichage (?style=...), même logique que l'horloge :
+        // 0 = HH:MM (sans secondes)   1 = HH:MM:SS (défaut)
+        // 2 = HHhMM:SS   3 = HH:MM   4 = HHhMM   5 = HHh
+        const styleParam = parseInt(new URLSearchParams(location.search).get('style'));
+        const STYLE = [0, 1, 2, 3, 4, 5].includes(styleParam) ? styleParam : 1;
+
         function format(ms) {
             const total = Math.max(0, Math.ceil(ms / 1000));
             const h = String(Math.floor(total / 3600)).padStart(2, '0');
             const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
             const s = String(total % 60).padStart(2, '0');
-            return `${h}:${m}:${s}`;
+            switch (STYLE) {
+                case 0: return `${h}:${m}`;
+                case 2: return `${h}h${m}:${s}`;
+                case 3: return `${h}:${m}`;
+                case 4: return `${h}h${m}`;
+                case 5: return `${h}h`;
+                default: return `${h}:${m}:${s}`;
+            }
         }
 
         function tick() {
@@ -121,6 +134,9 @@
             saveStart(startTs);
             run();
         });
+
+        // Affichage initial selon le style
+        timerEl.textContent = format(DURATION_MS);
 
         // Au chargement : si une heure de début existe déjà, on reprend où on en est
         startTs = loadStart();
