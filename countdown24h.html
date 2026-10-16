@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown 24h</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        @font-face {
+            font-family: 'Gotham Black';
+            src: local('Gotham Black'), url('../fonts/Gotham_Black_Regular.ttf');
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #00ff00;
+        }
+
+        #timer {
+            font-family: 'Gotham Black', sans-serif;
+            font-size: 180px;
+            color: #ffffff;
+            text-shadow: 5px 5px 25px rgba(0, 0, 0, 0.5);
+            font-variant-numeric: tabular-nums;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="timer">24:00:00</div>
+
+    <script>
+        const DURATION_MS = 24 * 60 * 60 * 1000;
+        const STORAGE_KEY = 'countdown24h_start';
+        const timerEl = document.getElementById('timer');
+
+        let startTs = null;   // heure de début en timestamp (ms)
+        let rafId = null;
+
+        // Option : ?start=14:05 (ou 14:05:30) => heure de début fixée à l'avance, aujourd'hui
+        function startFromUrl() {
+            const v = new URLSearchParams(location.search).get('start');
+            if (!v) return null;
+            const [h, m = 0, sec = 0] = v.split(':').map(Number);
+            if ([h, m, sec].some(Number.isNaN)) return null;
+            const d = new Date();
+            d.setHours(h, m, sec, 0);
+            return d.getTime();
+        }
+
+        function loadStart() {
+            const fromUrl = startFromUrl();
+            if (fromUrl) return fromUrl;
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                return saved ? Number(saved) : null;
+            } catch (e) { return null; }
+        }
+
+        function saveStart(ts) {
+            try { localStorage.setItem(STORAGE_KEY, String(ts)); } catch (e) {}
+        }
+
+        function clearStart() {
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        }
+
+        function format(ms) {
+            const total = Math.max(0, Math.ceil(ms / 1000));
+            const h = String(Math.floor(total / 3600)).padStart(2, '0');
+            const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
+            const s = String(total % 60).padStart(2, '0');
+            return `${h}:${m}:${s}`;
+        }
+
+        function tick() {
+            // Temps restant = (début + 24h) - maintenant
+            const remaining = startTs + DURATION_MS - Date.now();
+            if (remaining <= 0) {
+                timerEl.textContent = format(0);
+                rafId = null;
+                return;
+            }
+            // Avant l'heure de début (cas ?start= dans le futur) : on reste à 24:00:00
+            timerEl.textContent = format(Math.min(remaining, DURATION_MS));
+            rafId = requestAnimationFrame(tick);
+        }
+
+        function run() {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(tick);
+        }
+
+        // Clic = démarre (une seule fois). Shift + clic = remet à zéro (24:00:00 figé)
+        document.body.addEventListener('click', (e) => {
+            if (e.shiftKey) {
+                if (rafId) cancelAnimationFrame(rafId);
+                rafId = null;
+                startTs = null;
+                clearStart();
+                timerEl.textContent = format(DURATION_MS);
+                return;
+            }
+            if (startTs) return; // déjà lancé : on ne touche à rien
+            startTs = Date.now();
+            saveStart(startTs);
+            run();
+        });
+
+        // Au chargement : si une heure de début existe déjà, on reprend où on en est
+        startTs = loadStart();
+        if (startTs) run();
+    </script>
+</body>
+</html>
