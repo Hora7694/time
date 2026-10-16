@@ -43,10 +43,19 @@
         let startTs = null;   // heure de début en timestamp (ms)
         let rafId = null;
 
-        // Option : ?start=14:05 (ou 14:05:30) => heure de début fixée à l'avance, aujourd'hui
+        // Option : ?start=2026-10-16T12:40:00 (date complète, recommandé)
+        //      ou  ?start=14:05 / 14:05:30 (heure seule = aujourd'hui)
         function startFromUrl() {
             const v = new URLSearchParams(location.search).get('start');
             if (!v) return null;
+
+            // Format avec date : sans fuseau, interprété en heure locale du PC
+            if (v.includes('-')) {
+                const ts = new Date(v).getTime();
+                return Number.isNaN(ts) ? null : ts;
+            }
+
+            // Format heure seule
             const [h, m = 0, sec = 0] = v.split(':').map(Number);
             if ([h, m, sec].some(Number.isNaN)) return null;
             const d = new Date();
